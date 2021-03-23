@@ -246,7 +246,6 @@ speed pairs.
 
 
 This step may take a long while. Use R.exe CMD BATCH to run it on a server. 
-speed pairs.
 ::
 
     "path to your R bin\bin\R.exe" CMD BATCH path2yourscipt\test_P1KL.R &
@@ -255,4 +254,30 @@ speed pairs.
 Analyses
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+First, collect data as a data frame.  Define a criterion of > than 80% 
+amongst 100 different initial speed pairs. Each element in **parameters** stores
+a pair of parameter set, representing P0 and P1.
 
+::
+
+    parameters[[1]]
+    # $P0
+    #     type        kg        kc       kdv        ke 
+    # 0.0000000 1.0000000 3.0028922 0.5861449 0.0000000 
+    # $P1
+    #     type        kg        kc       kdv        ke 
+    # 0.0000000 1.0000000 3.0028922 0.5861449 0.0000000 
+
+    nparameter <- length(parameters)
+    kc_P0  <- kc_P1 <- rep(NA, nparameter)
+    kdv_P0  <- kdv_P1 <- rep(NA, nparameter)
+    for(i in 1:length(parameters)) 
+    {
+        kc_P0[i]  <- parameters[[i]]$P0[3]
+        kc_P1[i]  <- parameters[[i]]$P1[3]
+        kdv_P0[i] <- parameters[[i]]$P0[4]
+        kdv_P1[i] <- parameters[[i]]$P1[4]
+    }
+
+
+**colMeans** gets the probability for each parameter set
