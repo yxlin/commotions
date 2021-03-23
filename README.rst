@@ -6,7 +6,7 @@ commotions: Modelling Traffic Trajectories
 
 .. contents:: Table of contents
 
-.. image:: tests/testthat/Group0_OldClass_P2P/figs/TwoAs_test.png
+.. image:: inst/figs/TwoAs_test.png
     :width: 200px
     :height: 100px
     :align: left
@@ -18,7 +18,7 @@ What commotions does?
 interactions. The package is part of the COMMOTIONS project, a research project
 studying traffic scenarios where pedestrians and drivers interact.
 
-.. image:: tests/testthat/Group2_P1KL/figs/InitialPos.png 
+.. image:: inst/figs/InitialPos.png 
     :width: 200px
     :height: 100px
     :align: right
@@ -93,7 +93,7 @@ the source codes from the author's github.
    devtools::install_github('yxlin/commotions')
 
 
-.. image:: tests/testthat/Group0_OldClass_P2P/figs/OneA_test.png
+.. image:: inst/figs/OneA_test.png
     :width: 200px
     :height: 100px
     :align: center
