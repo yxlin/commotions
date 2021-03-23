@@ -1,6 +1,6 @@
-===========================================
-commotions: Modelling Traffic Trajectories 
-===========================================
+==========================================================
+commotions: Modelling Road Users' Travelling Trajectories 
+==========================================================
 
 .. sectnum::
 
@@ -29,8 +29,10 @@ How the codes are organized
 - src folder includes Agents.cpp, Kinematics.cpp, KinematicState.cpp, 
   main.cpp, Parameters.cpp, SCAgent.cpp, SCSimulation.cpp, Simulation.cpp, 
   unit_test.cpp, and util.cpp 
-- inst/include/ folder store header files. Kinematics.hpp, Parameters.hpp, Simulation.hpp, main.cpp 
-- R folder common routine functions, storing in includes commotions.R, plotting.R, free_speed.R
+- inst/include/ folder store header files. Kinematics.hpp, Parameters.hpp, 
+Simulation.hpp, main.cpp 
+- R folder common routine functions, storing in includes commotions.R, 
+plotting.R 
 - tests/testthat/ folders has the following subfolders: 
 
     - Group0 tests old OO classes for pedestrian trajectories,  
@@ -44,6 +46,26 @@ How the codes are organized
 
 Where to getting started
 ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Installation
+**********************
+To install, the user must have the devtools package, which enables a rapid 
+download the source codes from the author's github.  
+
+::
+
+   devtools::install_github('yxlin/commotions')
+
+
+.. image:: inst/figs/OneAgent.png
+    :width: 200px
+    :height: 100px
+    :align: center
+    :alt: One Pedestrian 
+
+
+Examples
+**********************
 The following example simulates a pedestrian's trajectory.
 
 ::
@@ -82,20 +104,4 @@ The following example simulates a pedestrian's trajectory.
                    initial_angle, obstacles, cd, sr, wall)
    tmp <- plot_1traj(traj)
 
-
-Installation
-**********************
-To install, the user must have the devtools package, which enables a rapid download
-the source codes from the author's github.  
-
-::
-
-   devtools::install_github('yxlin/commotions')
-
-
-.. image:: inst/figs/OneAgent.png
-    :width: 200px
-    :height: 100px
-    :align: center
-    :alt: One Pedestrian 
 
