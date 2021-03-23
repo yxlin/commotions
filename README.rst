@@ -6,7 +6,7 @@ commotions: Modelling Traffic Trajectories
 
 .. contents:: Table of contents
 
-.. image:: inst/figs/TwoAs_test.png
+.. image:: inst/figs/TwoAgents.png
     :width: 200px
     :height: 100px
     :align: left
@@ -93,7 +93,7 @@ the source codes from the author's github.
    devtools::install_github('yxlin/commotions')
 
 
-.. image:: inst/figs/OneA_test.png
+.. image:: inst/figs/OneAgent.png
     :width: 200px
     :height: 100px
     :align: center
