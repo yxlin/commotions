@@ -1,0 +1,18 @@
+Package: commotions
+Type: Package
+Title: Simulating pedestrain and vehcile travelling trajectories
+Version: 0.0.0.1
+Date: 2020-09-29
+Author: Yi-Shin Lin [aut, cre], Gustav Markkula [aut]
+Maintainer: Yi-Shin Lin <yishinlin001@gmail.com>
+Description: The package implements the trajectory models of pedestrians and vehicles.
+License: GPL3
+Imports: Rcpp (>= 1.0.1), ggplot2
+LinkingTo: Rcpp, RcppArmadillo
+URL: https://github.com/yxlin/commotions
+BugReports: https://github.com/yxlin/commotions/issues
+LazyData: TRUE
+Suggests: testthat
+RoxygenNote: 7.1.1
+Encoding: UTF-8
+NeedsCompilation: yes
