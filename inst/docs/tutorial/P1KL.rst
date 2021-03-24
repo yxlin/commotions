@@ -77,6 +77,23 @@ each agent. Legacy code for default steering ratio for the agent 1 and agent 2.
     sr <- c(0, 0)
 
 
+Run an example trajectory.
+
+::
+
+    kc <- runif(1, 0, 10)
+    kdv <- runif(1, .28, .71)
+    parameters[[1]] <- list(P0 = c(type=0, kg=1, kc=kc, kdv=kdv, ke=0),
+                        P1 = c(type=0, kg=1, kc=kc, kdv=kdv, ke=0))
+    path <- paste0("tests/testthat/Group2_P1KL/figs/para", i)
+    if (!dir.exists(path)) { dir.create(path) }
+    init_speed <- speeds[j, ]
+    traj <- test_P2P(time, parameters[[i]], pos, goal, so, ao, init_speed,
+                 init_angle, obstacles, cd, sr, wall)
+    png(file="figs/P1KL_example.png", 800, 600)
+    plot_2traj_no_angle(traj, wall=wall, col="Set2")
+
+
 Use a simple two-layer for loops to step through the parameter pairs and the
 speed pairs.
 
@@ -102,9 +119,6 @@ speed pairs.
             plot_2traj_no_angle(traj, wall=wall, col="Set2")
 
             nt <- length(traj$times)
-            str(traj$x[2,])
-            str(traj$x[1,])
-            
             delta_x_traj <- traj$x[2,] - traj$x[1,]
             delta_y_traj <- traj$y[2,] - traj$y[1,]
             distance_traj <- sqrt(delta_x_traj^2+ delta_y_traj^2)
@@ -249,6 +263,143 @@ This step may take a long while. Use R.exe CMD BATCH to run it on a server.
 ::
 
     "path to your R bin\bin\R.exe" CMD BATCH path2yourscipt\test_P1KL.R &
+
+Step-by-Step Explanation
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**traj$x** and **traj$y** are :math:`2 \times 300` matrix, storing the 
+coordinates on the x and y axis evolving over the time. 
+Thererfore, **delta_traj** is the moment-to-moment distance between the two 
+agents.
+
+.. math::
+
+    \sqrt{(x_2 - x_1)^2  + (y_2- y_1)^2 }
+
+::
+
+    # num [1:2, 1:300] -5 -5 -4.98 -4.98 -4.93 ...
+    delta_x_traj <- traj$x[2,] - traj$x[1,]
+    delta_y_traj <- traj$y[2,] - traj$y[1,]
+    distance_traj <- sqrt(delta_x_traj^2+ delta_y_traj^2)
+
+In this case, *P0* stopped at [-0.66  -0.66] and *P1* stopped at [-0.66  0.66].
+
+.. image:: figs/first_case.png
+    :width: 200px
+    :height: 100px
+    :align: right
+    :alt: X4issue
+
+There final distance was 1.3 meters apart (right panel, row D). Therefore,
+these two agents had never stepped into their collision proximity, defined in
+**cd**. This fact was recored in **iscolliding**.
+
+::
+
+    is_colliding_traj <- distance_traj < cd[1]
+    if (any(is_colliding_traj)) iscolliding[j, i] <- TRUE
+
+
+**find_tsee** finds when the two agents start to notice each other. 
+It returns t :sub:`see` at 3.7 seconds, which is at the index 38. From P0's 
+perspective when at the t :sub:`see`, it still needed 3.5 seconds (t2M1) to 
+travel to the crossing point, which was still 3.5 meters away (D2M1). 
+(t2M1). **t2M2** and **D2M2** are same statistics from P1's perspective. The
+last element reported that no leading agent in this case.
+
+::
+
+    tmp0 <- find_tsee(traj, wall=wall, verbose = TRUE); unlist(tmp0)
+    # tsee     i_tsee       t2M1       t2M2       D2M1       D2M2 lead_agent 
+    # 3.7       38.0        3.5        3.5        3.5        3.5         NA 
+
+The **verbose** option prints the t :sub:`see` test.
+::
+
+      tmp0 <- find_tsee(traj, wall=wall, verbose = TRUE); 
+      # Equal time to midpoint
+      tmp1 <- who_pass_first(traj, verbose = TRUE); 
+      # Neither A0 nor A1 passed midpoint
+
+**get_distance** calculate the distance between agent's last position to its 
+destination. *test2* and *test3* thus test whether agents were still far away
+(> 0.5 meter) from their destination. These results were stored thereafter.
+
+::
+
+      D0 <- get_distance(v0 = traj$goal[,1],
+                         v1 = c(traj$x[1, nt], traj$y[1, nt])); 
+      D1 <- get_distance(v0 = traj$goal[,2],
+                         v1 = c(traj$x[2, nt], traj$y[2, nt])); 
+      
+      test2 <- traj$x[1, nt] < traj$goal[1, 1] &&
+               traj$y[1, nt] < traj$goal[2, 1] && D0 > .5 
+      
+      test3 <- traj$x[2, nt] < traj$goal[1, 2] &&
+               traj$y[2, nt] > traj$goal[2, 2] && D1 > .5 
+
+      if (test2) { farfrom_reaching_goal0[j, i] <- TRUE }
+      if (test3) { farfrom_reaching_goal1[j, i] <- TRUE }
+       
+Next, we examined the evoluation of the accelerations. If the accelerations
+became 0, it implies that the agents have reached their free speeds before 
+t :sub:`see`.
+     
+::
+
+      agent0_acc <- traj$accelerations[1,1:tmp0$i_tsee] == 0
+      agent1_acc <- traj$accelerations[2,1:tmp0$i_tsee] == 0
+      test4 <- sum(agent0_acc) > 0
+      test5 <- sum(agent1_acc) > 0
+    
+      if (test4) { alread_reach_free_speed0[j, i] <- TRUE }
+      if (test5) { alread_reach_free_speed1[j, i] <- TRUE }
+
+Then we scanned through agents' standing at every time point and examined
+whether they had stepped over their destinations more than 0.5 meter. 
+
+::
+
+    for (k in 1:nt) {
+        D2 <- get_distance(v0 = traj$goal[,1],
+                   v1 = c(traj$x[1, k], traj$y[1, k]))
+        D3 <- get_distance(v0 = traj$goal[,2],
+                   v1 = c(traj$x[2, k], traj$y[2, k]))
+
+        test0 <- traj$x[1, k] > traj$goal[1, 1] && 
+                 traj$y[1, k] > traj$goal[2, 1] && D2 > .5
+        test1 <- traj$x[2, k] > traj$goal[1, 2] &&
+                 traj$y[2, k] < traj$goal[2, 2] && D3 > .5
+
+        if (test0 && test1) { 
+            isovershoot0[j,i] <- isovershoot1[j,i]  <- TRUE
+            cat("Both agent overshooted\n")
+            #stop("Both agent overshooted\n")
+            break
+        }
+        if (test0) {
+            isovershoot0[j,i] <- TRUE
+            cat("P0 overshooted\n")
+            #stop("P0 overshooted\n")
+            break
+        }
+        if (test1) {
+            isovershoot1[j,i] <- TRUE
+            cat("P1 overshooted\n")
+            #stop("P1 overshooted\n")
+            break
+        }
+
+        # This step checks whether the agents immaturely stop before tsee
+        if (k > 30 && k < tmp0$i_tsee)
+        {
+            X4P0[j, i] <- traj$accelerations[1,k]==0
+            X4P1[j, i] <- traj$accelerations[2,k]==0
+            break
+        }
+
+    } ## end of k looping over time
 
 
 Analyses
