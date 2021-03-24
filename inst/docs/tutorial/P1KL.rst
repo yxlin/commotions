@@ -259,7 +259,9 @@ speed pairs.
 
 
 
-This step may take a long while. Use R.exe CMD BATCH to run it on a server. 
+Although the double loops may not take too long to run, if one use a good
+PC. It is not a bad idea to use R.exe CMD BATCH.
+
 ::
 
     "path to your R bin\bin\R.exe" CMD BATCH path2yourscipt\test_P1KL.R &
@@ -359,6 +361,9 @@ t :sub:`see`.
 Then we scanned through agents' standing at every time point and examined
 whether they had stepped over their destinations more than 0.5 meter. 
 
+Passing Destination
+******************************
+
 ::
 
     for (k in 1:nt) {
@@ -401,6 +406,73 @@ whether they had stepped over their destinations more than 0.5 meter.
 
     } ## end of k looping over time
 
+
+Scoring
+**********************
+
+Scoring whether leading agent passes first happened.
+
+    if (is.na(tmp0$lead_agent)) {
+        #cat("No leading agent\n")
+        P1KL[j, i] <- NA
+    } else if (is.na(tmp1$who_passed)) {
+       # cat("Neither passed earlier\n")
+       P1KL[j, i] <- NA
+    } else if ( tmp0$lead_agent == tmp1$who_passed ) {
+       P1KL[j, i] <- TRUE
+    } else {
+       #cat("Leading agent did not pass first\n")
+    }
+
+If P1KL resulted in not available, other associated behaviours score NA, too.
+If P1KL resulted scored and the agent 0 (A0) passed the crossing point also 
+earlier than agent 1, we check whether A0 accelerated by looking five steps
+later if its speed became faster than its current speed at the t :sub:`see`.
+Similarly, we applied such check on the behaviours of the second agent 
+deceleration, the first agent deceleration, and the second agent acceleration.
+This applied also to when the agent 1 was the lead agent.  
+
+::
+
+    if (is.na(P1KL[j, i])) {
+        cat("Trajectory abnormal\n")
+        P2FA[j, i] <- NA
+        P3SD[j, i] <- NA
+        P2FD[j, i] <- NA
+        P3SA[j, i] <- NA
+    } else if (P1KL[j, i] == TRUE && tmp1$who_passed == "A0") {
+        ## First passer accelerates; A0 is stored in row 1
+        P2FA[j, i] <- ifelse(traj$speed[1, tmp0$i_tsee + 5] >
+                         traj$speed[1, tmp0$i_tsee], TRUE, FALSE)
+        ## Second passer decelerates
+        P3SD[j, i] <- ifelse(traj$speed[2, tmp0$i_tsee + 5] <
+                         traj$speed[2, tmp0$i_tsee], TRUE, FALSE)
+    
+        ## First passer decelerates
+        P2FD[j, i] <- ifelse(traj$speed[1, tmp0$i_tsee + 5] <
+                         traj$speed[1, tmp0$i_tsee], TRUE, FALSE)
+    
+        ## Second passer accelerates
+        P3SA[j, i] <- ifelse(traj$speed[2, tmp0$i_tsee + 5] >
+                         traj$speed[2, tmp0$i_tsee], TRUE, FALSE)
+    
+    } else if (P1KL[j, i] == TRUE && tmp1$who_passed == "A1") {
+        P2FA[j, i] <- ifelse(traj$speed[2, tmp0$i_tsee + 5] >
+                         traj$speed[2, tmp0$i_tsee], TRUE, FALSE)
+        P3SD[j, i] <- ifelse(traj$speed[1, tmp0$i_tsee + 5] <
+                         traj$speed[1, tmp0$i_tsee], TRUE, FALSE)
+    
+        ## First passer decelerates
+        P2FD[j, i] <- ifelse(traj$speed[2, tmp0$i_tsee + 5] <
+                         traj$speed[2, tmp0$i_tsee], TRUE, FALSE)
+    
+        ## Second passer accelerates
+        P3SA[j, i] <- ifelse( traj$speed[1, tmp0$i_tsee + 5] >
+                          traj$speed[1, tmp0$i_tsee], TRUE, FALSE)
+    
+    } else {
+        ## cat("Leading agent did not pass first\n")
+    }
 
 Analyses
 ~~~~~~~~~~~~~~~~~~~~~~~~~
