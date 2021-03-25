@@ -107,11 +107,6 @@ The following example simulates a pedestrian's trajectory.
 
 More
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-External hyperlinks, like `Python
-<https://www.python.org/>`_.
+See the example of leading agent passes first at, `LAPF.
+<https://github.com/yxlin/commotions/blob/main/inst/docs/tutorial/P1KL.rst>`_.
 
-
-Internal crossreferences, like inst/docs/tutorial/P1KL.rst_.
-.. _inst/docs/tutorial/P1KL.rst:
-
-This is an example crossreference target.
