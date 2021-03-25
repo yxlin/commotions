@@ -105,3 +105,13 @@ The following example simulates a pedestrian's trajectory.
    tmp <- plot_1traj(traj)
 
 
+More
+~~~~~~~~~~~~~~~~~~~~~~~~~
+External hyperlinks, like `Python
+<https://www.python.org/>`_.
+
+
+Internal crossreferences, like inst/docs/tutorial/P1KL.rst_.
+.. _inst/docs/tutorial/P1KL.rst:
+
+This is an example crossreference target.
