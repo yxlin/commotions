@@ -291,7 +291,7 @@ In this case, *P0* stopped at [-0.66  -0.66] and *P1* stopped at [-0.66  0.66].
     :width: 200px
     :height: 100px
     :align: right
-    :alt: X4issue
+    :alt: first_case
 
 There final distance was 1.3 meters apart (right panel, row D). Therefore,
 these two agents had never stepped into their collision proximity, defined in
@@ -412,6 +412,8 @@ Scoring
 
 Scoring whether leading agent passes first happened.
 
+::
+
     if (is.na(tmp0$lead_agent)) {
         #cat("No leading agent\n")
         P1KL[j, i] <- NA
@@ -504,3 +506,45 @@ a pair of parameter set, representing P0 and P1.
 
 
 **colMeans** gets the probability for each parameter set
+
+::
+
+    d <- data.frame(kc_P0, kc_P1, kdv_P0, kdv_P1,
+                P1KL = colMeans(P1KL, na.rm=TRUE),
+                P2FA = colMeans(P2FA, na.rm=TRUE),
+                P2FD = colMeans(P2FD, na.rm=TRUE),
+                P3SD = colMeans(P3SD, na.rm=TRUE),
+                P3SA = colMeans(P3SA, na.rm=TRUE),
+                isC  = colMeans(iscolliding, na.rm=TRUE),
+                isOS0 = colMeans(isovershoot0),
+                isOS1 = colMeans(isovershoot1))
+
+    d$P1KLCut <- ifelse(d$P1KL > .8, "P", "R")
+    d$P2FACut <- ifelse(d$P2FA > .2, "P", "R")
+    d$P2FDCut <- ifelse(d$P2FD < .05, "P", "R")
+    d$P3SDCut <- ifelse(d$P3SD > .2, "P", "R")
+    d$P3SACut <- ifelse(d$P3SA < .05, "P", "R")
+    d$C <- ifelse(d$isC > .1, "R", "P")
+    d$all <- d$P1KLCut=="P" & d$P2FACut=="P" & d$P2FDCut=="P" & d$P3SDCut=="P" &
+    d$P3SACut=="P" & d$C=="P"
+        d$Cutoff <- ifelse(d$all == TRUE, "P", "R")
+    d0 <- data.frame(kc   = d[, "kc_P0"],
+                 kdv  = d[, "kdv_P0"],
+                 Cutoff = d[, "Cutoff"])
+
+    p0 <- ggplot(d0, aes(x=kc, y=kdv)) +
+        geom_point(aes(color = Cutoff), size = 3) +
+        scale_alpha_continuous() +
+        scale_colour_manual(values=cbPalette[2:3]) +
+        xlab(expression(k[c]))+
+        ylab(expression(k[dv]))+
+        theme_bw(base_size = 16)  +
+        theme(legend.position= "top",
+            axis.title.y = element_text(angle = 0))
+
+.. image:: figs/P1-all.png
+    :width: 200px
+    :height: 100px
+    :align: center
+    :alt: all-criteria
+        
